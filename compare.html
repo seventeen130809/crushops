@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CrushOps · 两版对照</title>
+<style>
+  body{margin:0;background:#EFEFEE;color:#1B1B1B;
+       font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
+       -webkit-font-smoothing:antialiased}
+  header{padding:18px 26px;display:flex;justify-content:space-between;align-items:baseline;
+         gap:16px;border-bottom:1px solid #DEDEDC;flex-wrap:wrap}
+  h2{font-size:16px;font-weight:700;letter-spacing:.01em}
+  .hint{font-size:12px;color:#6E6E6E}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 26px 26px}
+  .col{background:#fff;border:1px solid #E2E2E0;border-radius:10px;overflow:hidden;
+       display:flex;flex-direction:column}
+  .label{padding:12px 16px;font-size:13px;font-weight:700;border-bottom:1px solid #EDEDEB;
+         display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .label small{font-weight:400;color:#8A8A8A;font-size:11px;letter-spacing:.02em}
+  iframe{width:100%;height:820px;border:0;display:block;background:#F6F6F5}
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr;padding:14px}
+    iframe{height:760px}
+    header{padding:14px}
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h2>CrushOps · 主版 / 备选</h2>
+    <span class="hint">主版已定为色卡粉；右侧保留石墨灰备选</span>
+  </header>
+  <div class="grid">
+    <div class="col">
+      <div class="label"><span>01 色卡粉 · 主版</span><small>#FEFDF8 / #F8CCDB</small></div>
+      <iframe src="index.html" title="色卡粉主版"></iframe>
+    </div>
+    <div class="col">
+      <div class="label"><span>02 石墨灰 · 备选</span><small>#F6F6F5 / #1B1B1B</small></div>
+      <iframe src="index-graphite.html" title="石墨灰备选"></iframe>
+    </div>
+  </div>
+</body>
+</html>

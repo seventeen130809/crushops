@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CrushOps · 追 crush 时你是怎样的人</title>
+<style>
+  :root{ --paper:#FEFDF8;--ink:#4A4D50;--line:#DFE3E2;--muted:#9FA2A6;--soft:#FCEFF4;--dot:#F8CCDB;--cta-bg:#F8CCDB;--cta-text:#4A4D50;--radius:14px;--opt-bg:#FFFFFF;--opt-shadow:0 3px 12px rgba(159,162,166,.10);--hover:#E7BFD0;--picked-border:#E7AFC6;--track:#DFE3E2;--fill:#F8CCDB;--cta-shadow:0 8px 22px rgba(248,204,219,.55);--bg-image:radial-gradient(circle at 50% 0%, rgba(248,204,219,.20), transparent 62%);--card:#FFFFFF }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--paper);background-image:var(--bg-image);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+       -webkit-font-smoothing:antialiased}
+  .view{display:none;min-height:100vh;padding:48px 24px;flex-direction:column;align-items:center;justify-content:flex-start}
+  .view.active{display:flex;animation:viewIn .34s ease both}
+  @keyframes viewIn{from{opacity:0}to{opacity:1}}
+  .stage{width:100%;max-width:760px;margin:auto;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+  /* ---------- 封面 ---------- */
+  .brand{font-family:Inter,"Helvetica Neue",Arial,sans-serif;
+         font-size:clamp(44px,7.2vw,84px);font-weight:800;letter-spacing:-.045em;line-height:1}
+  .rule{width:120px;height:1px;background:var(--line);flex:none}
+  .rule.top{margin:56px 0 0}
+  .ecg{display:block;width:100%;height:auto;margin:56px 0 0;color:var(--line)}
+  .ecg circle{fill:var(--dot)}
+  h1{font-size:clamp(36px,6vw,72px);line-height:1.36;letter-spacing:-.035em;
+     font-weight:800;margin:44px 0 0;word-break:keep-all}
+  .rule.bottom{margin:64px 0 48px}
+  .cta{display:inline-flex;align-items:center;justify-content:space-between;gap:34px;
+       background:var(--cta-bg);color:var(--cta-text);border:0;cursor:pointer;font-family:inherit;
+       padding:18px 26px 18px 32px;border-radius:var(--radius);font-size:17px;font-weight:800;letter-spacing:.06em;
+       box-shadow:var(--cta-shadow);transition:transform .18s ease,opacity .18s ease}
+  .cta:hover{transform:translateY(-2px);opacity:.88}
+  .cta:active{transform:translateY(0)}
+  .cta svg{width:18px;height:18px;flex:none}
+  .cta.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+
+  /* ---------- 答题 ---------- */
+  .quiz-box{width:100%;max-width:660px;margin:auto}
+  .progress{position:relative;width:100%;height:2px;background:var(--track)}
+  .progress .fill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--fill);
+                  transition:width .38s cubic-bezier(.22,.61,.36,1)}
+  .progress .tick{position:absolute;top:-3px;width:1px;height:8px;background:var(--line)}
+  .q-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px}
+  .acts{display:flex;align-items:center;gap:clamp(10px,2.8vw,22px)}
+  .acts i{font-style:normal;font-size:clamp(19px,3vw,24px);line-height:1;opacity:.3;filter:grayscale(1);
+          transition:opacity .3s ease,filter .3s ease,transform .3s ease}
+  .acts i.on{opacity:1;filter:none;transform:scale(1.18)}
+  #pNum{font-family:Inter,Arial,sans-serif;font-size:12px;letter-spacing:.16em;color:var(--muted);
+        font-weight:600;white-space:nowrap}
+  .q-body{margin:clamp(48px,9vh,96px) 0 0;animation:rise .36s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .q-text{font-size:clamp(21px,3.2vw,29px);line-height:1.62;letter-spacing:-.01em;
+          font-weight:800;word-break:break-word}
+  .opts{margin-top:clamp(28px,5vh,48px);display:flex;flex-direction:column;gap:10px}
+  .opt{display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+       background:var(--opt-bg);box-shadow:var(--opt-shadow);
+       border:1px solid var(--line);border-radius:var(--radius);
+       padding:16px 20px;min-height:62px;cursor:pointer;font-family:inherit;
+       color:var(--ink);font-size:clamp(14px,1.8vw,16.5px);font-weight:600;line-height:1.55;
+       animation:rise .36s ease both;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+  .opt:hover{border-color:var(--hover);transform:translateX(3px)}
+  .opt .k{font-family:Inter,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:.1em;
+          color:var(--muted);flex:none;min-width:14px;transition:color .18s ease}
+  .opt.picked{border-color:var(--picked-border);background:var(--soft);transform:translateX(3px)}
+  .opt.picked .k{color:var(--ink)}
+  .q-foot{margin-top:clamp(28px,5vh,44px);display:flex;justify-content:flex-start}
+  .back{background:none;border:0;cursor:pointer;font-family:inherit;font-size:12.5px;
+        font-weight:600;letter-spacing:.04em;color:var(--muted);padding:8px 0;transition:color .18s ease}
+  .back:hover{color:var(--ink)}
+  .back:disabled{opacity:.3;cursor:default}
+
+  /* ---------- 结果页 ---------- */
+  .result-wrap{width:100%;max-width:640px;margin:auto;padding:8px 0 24px}
+  .res-head{text-align:center;padding:18px 0 26px}
+  .res-kicker{font-size:11px;letter-spacing:.22em;color:var(--muted);font-weight:700}
+  .res-name{font-size:clamp(34px,6vw,52px);font-weight:800;letter-spacing:-.035em;
+            line-height:1.25;margin-top:14px}
+  .res-sub{font-size:13px;color:var(--muted);margin-top:5px}
+  .res-quote{font-size:16px;font-weight:800;margin-top:18px;padding:0 10px;line-height:1.6}
+  .res-desc{font-size:14.5px;line-height:2.05;text-align:justify;text-indent:2em;
+            border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+            padding:20px 2px;margin:0 0 22px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+         padding:20px 22px;margin:14px 0}
+  .panel-h{font-size:11px;letter-spacing:.18em;color:var(--muted);font-weight:800;margin-bottom:12px}
+  #radar{display:block;width:100%;max-width:340px;height:auto;margin:0 auto}
+  .dominant{text-align:center;font-size:12.5px;color:var(--muted);margin-top:8px}
+  .dominant b{color:var(--ink);font-weight:800}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  .stat{background:var(--soft);border-radius:var(--radius);padding:18px;text-align:center}
+  .stat-n{font-family:Inter,Arial,sans-serif;font-size:32px;font-weight:800;letter-spacing:-.03em}
+  .stat-l{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.08em}
+  #actChart{display:block;width:100%;height:auto}
+  .partner-card{background:var(--soft);border-radius:var(--radius);padding:18px 20px;margin-top:12px}
+  [hidden]{display:none!important}
+  .partner-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;
+         background:var(--soft);border:1px solid var(--line);border-radius:var(--radius);
+         padding:18px 20px;font-family:inherit;font-size:14px;font-weight:800;color:var(--ink);
+         cursor:pointer;transition:border-color .18s ease,transform .18s ease}
+  .partner-toggle:hover{border-color:var(--hover);transform:translateY(-2px)}
+  .partner-toggle span{color:var(--muted);font-size:18px;font-weight:600}
+  .p-name{font-size:22px;font-weight:800;letter-spacing:-.02em}
+  .p-sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .p-reason{font-size:13.5px;line-height:1.8;margin-top:12px;padding-top:12px;
+            border-top:1px solid var(--line)}
+  .p-note{font-size:11px;color:var(--muted);margin-top:10px;text-align:right}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0}
+  .tags span{font-size:12px;color:var(--ink);background:var(--card);
+             border:1px solid var(--line);border-radius:99px;padding:5px 14px}
+  .review{margin:16px 0;border:1px solid var(--line);border-radius:var(--radius);
+          background:var(--card);padding:0 18px}
+  .review summary{cursor:pointer;font-size:13px;font-weight:700;padding:15px 0;list-style:none}
+  .review summary::-webkit-details-marker{display:none}
+  .review summary::before{content:"＋ ";color:var(--muted)}
+  .review[open] summary::before{content:"－ "}
+  .review-list{padding:0 0 16px;font-size:12px;line-height:1.9;color:var(--muted);
+               max-height:320px;overflow:auto}
+  .review-list div{padding:7px 0;border-top:1px solid var(--line)}
+  .review-list b{color:var(--ink);font-weight:700}
+  .res-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:22px 0 0}
+  .res-actions .cta{font-size:14px;padding:14px 20px;gap:14px}
+  .res-foot{text-align:center;font-size:12px;color:var(--muted);margin:30px 0 16px}
+  .restart{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+         gap:3px;min-width:210px;padding:12px 26px;border:1px solid var(--ink);
+         border-radius:var(--radius);background:var(--card);color:var(--ink);
+         font-family:inherit;cursor:pointer;transition:transform .18s ease}
+  .restart:hover{transform:translateY(-2px)}
+  .restart-main{font-size:15px;font-weight:800;letter-spacing:.04em}
+  .restart-sub{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  .share-hint{text-align:center;font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:.02em}
+  .toast{text-align:center;font-size:12px;color:var(--muted);min-height:18px;margin-top:10px;opacity:0;transition:opacity .25s}
+  .toast.on{opacity:1}
+
+  @media (max-width:640px){
+    .view{padding:36px 22px}
+    .brand{font-size:clamp(40px,11vw,58px)}
+    .rule.top{margin-top:40px}
+    .ecg{margin-top:36px}
+    h1{font-size:clamp(31px,8.6vw,46px);margin-top:32px;letter-spacing:-.025em}
+    .rule.bottom{margin:48px 0 36px}
+    .cta{width:100%;max-width:320px;justify-content:center;gap:24px;padding:17px 24px}
+    .q-body{margin-top:52px}
+    .opt{padding:14px 16px;min-height:58px;gap:12px}
+    .q-foot{margin-top:30px}
+    .panel{padding:16px 15px}
+    .res-desc{font-size:14px;padding:16px 0}
+    .res-actions{flex-direction:column;align-items:center}
+    .res-actions .cta{width:100%;max-width:320px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- 封面 -->
+<section class="view active" id="cover">
+  <div class="stage">
+    <div class="brand">CrushOps</div>
+    <div class="rule top"></div>
+    <svg class="ecg" viewBox="0 0 720 150" fill="none" aria-hidden="true">
+      <path d="M0 75 L170 75 L205 63 L235 108 L275 32 L320 90 L360 10 L400 90 L445 32 L485 108 L515 63 L550 75 L720 75"
+            stroke="currentColor" stroke-width="4" stroke-linejoin="miter"/>
+      <circle cx="360" cy="10" r="7"/>
+    </svg>
+    <h1>追 crush 时<br>你是怎样的人？</h1>
+    <div class="rule bottom"></div>
+    <button class="cta" id="startBtn" type="button">
+      开始测试
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- 答题 -->
+<section class="view" id="quiz">
+  <div class="quiz-box">
+    <div class="progress" id="progress"><div class="fill" id="fill"></div></div>
+    <div class="q-head"><div class="acts" id="acts"></div><span id="pNum">01 / 25</span></div>
+    <div class="q-body" id="qBody">
+      <p class="q-text" id="qText"></p>
+      <div class="opts" id="opts"></div>
+    </div>
+    <div class="q-foot"><button class="back" id="backBtn" type="button">← 上一题</button></div>
+  </div>
+</section>
+
+<!-- 结果页 -->
+<section class="view" id="result">
+  <div class="result-wrap">
+    <div class="res-head">
+      <div class="res-kicker">CRUSHOPS · 观测报告</div>
+      <div class="res-name" id="rName"></div>
+      <div class="res-sub" id="rSub"></div>
+      <div class="res-quote" id="rQuote"></div>
+    </div>
+    <p class="res-desc" id="rDesc"></p>
+
+    <div class="panel">
+      <div class="panel-h">八维观测</div>
+      <svg id="radar" viewBox="0 0 340 340" aria-label="八维雷达图"></svg>
+      <div class="dominant" id="rDominant"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="rBurn"></div><div class="stat-l">内耗指数 / 100</div></div>
+      <div class="stat"><div class="stat-n" id="rAct"></div><div class="stat-l" id="rActLabel">最内耗的一幕</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">五幕曲线 · 内耗走向</div>
+      <svg id="actChart" viewBox="0 0 340 120" aria-label="五幕曲线"></svg>
+    </div>
+
+    <div class="panel">
+      <div class="panel-h">配到的 CRUSH 类型</div>
+      <button class="partner-toggle" id="partnerToggle" type="button">点开看 ta 是什么类型 <span>→</span></button>
+      <div class="partner-card" id="partnerCard" hidden>
+        <div class="p-name" id="rPartner"></div>
+        <div class="p-sub" id="rPartnerSub"></div>
+        <div class="p-reason" id="rReason"></div>
+      </div>
+    </div>
+
+    <div class="res-actions">
+      <button class="restart" id="restartBtn" type="button">
+        <span class="restart-main">重新测试</span>
+        <span class="restart-sub">（和自己复合）</span>
+      </button>
+    </div>
+    <div class="res-actions">
+      <button class="cta" id="shareBtn" type="button">保存分享图</button>
+      <button class="cta ghost" id="linkBtn" type="button">复制结果链接</button>
+    </div>
+    <div class="share-hint">发给 crush，问 ta 敢不敢直视神</div>
+    <div class="toast" id="toast"></div>
+    <div class="res-foot">什么也没发生，我又度过了幸福的一天 (ᗒᗩᗕ)</div>
+  </div>
+</section>
+
+<script>
+const DIMS = ["主动性","直白度","投入度","自我保护","持久力","想象力","仪式感","理性止损"];
+const COVERAGE = {"主动性":12,"直白度":13,"投入度":15,"自我保护":20,"持久力":8,"想象力":19,"仪式感":15,"理性止损":14};
+const QUIZ = [{"id":1,"act":1,"q":"你是什么时候确认自己这次上头了？","options":[{"key":"A","text":"我操，好美/好帅，好会聊天","dims":["主动性","直白度"]},{"key":"B","text":"ta 回我这个啥意思…豆包帮我优化一下我的人生","dims":["想象力","投入度"]},{"key":"C","text":"（朋友提了 ta 的名字）“谁？哦……那个啊。”","dims":["自我保护"]},{"key":"D","text":"我对 ta 没意思，你懂吧","dims":["自我保护","理性止损"]}]},{"id":2,"act":1,"q":"这次心动之后，你的手机最先出卖了你哪里？","options":[{"key":"A","text":"置顶了，怎么不给我发消息","dims":["投入度","主动性"]},{"key":"B","text":"看看ta抖音推荐的作品","dims":["投入度","想象力"]},{"key":"C","text":"朋友圈分享歌曲了，开始循环（循环到第 47 遍，算修行）","dims":["主动性","想象力"]},{"key":"D","text":"搜一下我俩星座合适不嘿嘿","dims":["仪式感"]}]},{"id":3,"act":1,"q":"你现在刷动态的真实姿势：","options":[{"key":"A","text":"ta 终于发朋友圈了。今日无事，不看。（看了 47 次）","dims":["投入度"]},{"key":"B","text":"保持视奸。（这是工作，不是感情，谢谢）","dims":["想象力","投入度"]},{"key":"C","text":"ta能刷到我朋友圈吗","dims":["想象力"]},{"key":"D","text":"ta在线","dims":["仪式感","想象力"]}]},{"id":4,"act":1,"q":"朋友问“你是不是喜欢 ta”，你嘴上说的是：","options":[{"key":"A","text":"就是朋友","dims":["自我保护"]},{"key":"B","text":"没有，你觉得ta喜欢什么类型","dims":["直白度","想象力"]},{"key":"C","text":"对","dims":["直白度"]},{"key":"D","text":"不知道，换个话题","dims":["自我保护","理性止损"]}]},{"id":5,"act":1,"q":"确认上头一周后，你对自己说：","options":[{"key":"A","text":"来来来，直接梭哈","dims":["主动性"]},{"key":"B","text":"体面，还想做朋友。（做人好难，我想做一根薯条）","dims":["自我保护","仪式感"]},{"key":"C","text":"找个机会说","dims":["主动性","想象力"]},{"key":"D","text":"顺其自然吧","dims":["持久力"]}]},{"id":6,"act":2,"q":"终于加上微信了。第一句你发的是：","options":[{"key":"A","text":"要个备注吧","dims":["仪式感"]},{"key":"B","text":"发个表情包","dims":["自我保护","仪式感"]},{"key":"C","text":"直接找话题聊起来","dims":["直白度"]},{"key":"D","text":"什么都不发。（沉默也是一种很吵的表态）","dims":["自我保护","持久力"]}]},{"id":7,"act":2,"q":"回消息这件小事，你的策略是：","options":[{"key":"A","text":"看ta隔多久回我","dims":["想象力","自我保护"]},{"key":"B","text":"秒回显的我太在意了","dims":["自我保护","投入度"]},{"key":"C","text":"看到就回","dims":["直白度"]},{"key":"D","text":"秒回","dims":["主动性"]}]},{"id":8,"act":2,"q":"和 ta 聊到半夜十二点，ta 说“我困了”，你回：","options":[{"key":"A","text":"明天聊","dims":["想象力","自我保护"]},{"key":"B","text":"再聊十分钟呗。（十分钟够我把这辈子过完）","dims":["投入度","持久力"]},{"key":"C","text":"早点睡，别熬夜","dims":["直白度"]},{"key":"D","text":"晚安！（稳稳地接住你，不躲，不藏，不绕，不逃）","dims":["仪式感"]}]},{"id":9,"act":2,"q":"你最常用的试探方式：","options":[{"key":"A","text":"你周末一般干嘛呀","dims":["主动性","想象力"]},{"key":"B","text":"到底谁敢试探。","dims":["自我保护"]},{"key":"C","text":"我们要不要一起去...","dims":["直白度","自我保护"]},{"key":"D","text":"发个朋友圈嘿嘿。（仅 ta 可见，仅 ta 没看）","dims":["主动性","仪式感"]}]},{"id":10,"act":2,"q":"哪个瞬间让你觉得能拿到大结果：","options":[{"key":"A","text":"ta回消息很快","dims":["想象力"]},{"key":"B","text":"我俩互相分享日常","dims":["想象力","投入度"]},{"key":"C","text":"感觉ta不再冷淡","dims":["持久力"]},{"key":"D","text":"还没这个瞬间，再等等","dims":["持久力","自我保护"]}]},{"id":11,"act":3,"q":"第一次约 ta 出来，你用的理由：","options":[{"key":"A","text":"我们要不要一起吃饭。（座位图都排好了，主陪写的是 ta）","dims":["直白度"]},{"key":"B","text":"我想给你个东西","dims":["投入度","自我保护"]},{"key":"C","text":"多叫几个共友一起","dims":["主动性","仪式感"]},{"key":"D","text":"体面，再等等","dims":["仪式感"]}]},{"id":12,"act":3,"q":"你说过最接近告白的一句话：","options":[{"key":"A","text":"你好可爱","dims":["直白度","自我保护"]},{"key":"B","text":"你有对象吗","dims":["直白度"]},{"key":"C","text":"跟你聊天很舒服。（舒服到想给这句话上柱香）","dims":["直白度","想象力"]},{"key":"D","text":"不敢说","dims":["自我保护","理性止损"]}]},{"id":13,"act":3,"q":"让聊天热度 up，你的招：","options":[{"key":"A","text":"时不时分享自己的日常","dims":["持久力","投入度"]},{"key":"B","text":"睡了吗。（十剑是检验真理的唯一标准，这是第一剑）","dims":["直白度","想象力"]},{"key":"C","text":"聊点对方感兴趣的","dims":["主动性"]},{"key":"D","text":"等对方主动","dims":["自我保护"]}]},{"id":14,"act":3,"q":"你俩现在的关系，你的内心定义：","options":[{"key":"A","text":"有点尴尬的状态","dims":["想象力"]},{"key":"B","text":"挺好的朋友","dims":["自我保护"]},{"key":"C","text":"说不清道不明","dims":["想象力","仪式感"]},{"key":"D","text":"没什么关系。（关系 0.00，四舍五入还是 0.00）","dims":["自我保护","理性止损"]}]},{"id":15,"act":3,"q":"热度到这了，接下来：","options":[{"key":"A","text":"想找个时间说清楚","dims":["直白度","主动性"]},{"key":"B","text":"一直暧昧，不想以后","dims":["仪式感"]},{"key":"C","text":"冷静点","dims":["理性止损"]},{"key":"D","text":"看ta下一步怎么办","dims":["自我保护"]}]},{"id":16,"act":4,"q":"ta 忽冷忽热，你：","options":[{"key":"A","text":"我也冷起来呗","dims":["自我保护","理性止损"]},{"key":"B","text":"直接梭哈去问。（第一剑，出。第二剑，也出）","dims":["直白度"]},{"key":"C","text":"一直发，把 ta 当备忘录。（命运 你假慈悲，命运 你假糍粑，命运 你还不回）","dims":["主动性","投入度"]},{"key":"D","text":"那我撤退了","dims":["理性止损"]}]},{"id":17,"act":4,"q":"半夜十二点睡不着，你在想：","options":[{"key":"A","text":"ta到底啥意思","dims":["想象力"]},{"key":"B","text":"复盘一下这几天","dims":["想象力","仪式感"]},{"key":"C","text":"什么都不想。就是睡不着","dims":["投入度","持久力"]},{"key":"D","text":"我明天真不发了","dims":["理性止损"]}]},{"id":18,"act":4,"q":"ta 突然又热情起来，你：","options":[{"key":"A","text":"一个人又开始主动","dims":["投入度"]},{"key":"B","text":"对ta不再热情","dims":["自我保护","主动性"]},{"key":"C","text":"呵呵牛逼","dims":["理性止损","想象力"]},{"key":"D","text":"直接问，怎么忽冷忽热","dims":["直白度"]}]},{"id":19,"act":4,"q":"你觉得 ta 现在怎么看你：","options":[{"key":"A","text":"朋友吧","dims":["理性止损"]},{"key":"B","text":"一个乐子","dims":["想象力","自我保护"]},{"key":"C","text":"可能有点意思","dims":["想象力"]},{"key":"D","text":"不敢想","dims":["自我保护"]}]},{"id":20,"act":4,"q":"摊牌前最后一刻，你在犹豫：","options":[{"key":"A","text":"连朋友都做不成了咋办","dims":["自我保护","投入度"]},{"key":"B","text":"被拒绝好尴尬","dims":["自我保护","仪式感"]},{"key":"C","text":"到底要不要说清楚","dims":["想象力"]},{"key":"D","text":"不犹豫，退出ta的世界","dims":["理性止损"]}]},{"id":21,"act":5,"q":"你的表白方式：","options":[{"key":"A","text":"约出来当面说","dims":["仪式感"]},{"key":"B","text":"聊天顺着话题就说了","dims":["直白度"]},{"key":"C","text":"内耗完发一段话表明","dims":["想象力","投入度"]},{"key":"D","text":"偷偷暗示一下","dims":["自我保护"]}]},{"id":22,"act":5,"q":"如果被拒绝了，当晚你：","options":[{"key":"A","text":"先睡了。明天再说。（什么也没发生，我又度过了幸福的一天）","dims":["理性止损"]},{"key":"B","text":"找朋友彻夜长谈。（谈完朋友比我更忧郁，你敢直视神吗）","dims":["仪式感"]},{"key":"C","text":"为啥拒绝我","dims":["投入度"]},{"key":"D","text":"没事，我真没事。（女孩，我们的人生不会轻易完蛋的，因为我们没有蛋蛋）","dims":["自我保护"]}]},{"id":23,"act":5,"q":"被拒后 ta 又来找你聊天，你：","options":[{"key":"A","text":"聊呗，不管了","dims":["投入度"]},{"key":"B","text":"还是互删吧。我们做不了朋友","dims":["自我保护","主动性"]},{"key":"C","text":"正常回复","dims":["自我保护"]},{"key":"D","text":"为什么还来找我呵呵","dims":["理性止损","想象力"]}]},{"id":24,"act":5,"q":"如果重开一次，你会：","options":[{"key":"A","text":"保持主动性","dims":["主动性"]},{"key":"B","text":"下次还这样，但我认了","dims":["持久力"]},{"key":"C","text":"不开始，省得内耗","dims":["理性止损"]},{"key":"D","text":"还是慢慢来","dims":["仪式感"]}]},{"id":25,"act":5,"q":"一年后想起这段心动，最清晰的画面：","options":[{"key":"A","text":"第一次意识到心动的那个瞬间","dims":["持久力","想象力"]},{"key":"B","text":"表白那天的天气","dims":["仪式感"]},{"key":"C","text":"没什么画面。都不重要了","dims":["理性止损"]},{"key":"D","text":"还没到一年。我这一生如绿豆饼，还没烤好","dims":["持久力"]}]}];
+const ENDINGS = [{"dim":"主动性","name":"已读就约","subtitle":"· 认识第 2 天，饭已经订好了；第 3 天，座位图也排了","quote":"我不躲，不藏，不绕，不逃，稳稳地把你约出来。","desc":"加完微信你就问周末有没有空。ta 说再说吧，你已经在看哪家店灯光好，顺手把座位图也排了。天下英雄如过江之鲫，先烤一条。","tags":["座位图已排","先烤一条","稳稳接住"],"partner":"嘴硬协会","partnerReason":"我稳稳地把你约出来，你稳稳地否认认识我。"},{"dim":"直白度","name":"不打草稿","subtitle":"· 撤回时限 2 分钟，你拿去许愿了","quote":"发送键比脑子快，脑子比命运慢。","desc":"「我好像有点喜欢你」三秒发出去。你把手机扣在桌上，和刚才那个自己割席了。撤回键亮着两分钟，像老天爷在等你说许什么愿。","tags":["已割席","许愿撤回","三秒发送"],"partner":"挑日子的人","partnerReason":"你已经惊动老天爷了，ta 还在等检验真理的唯一标准。"},{"dim":"投入度","name":"置顶选手","subtitle":"· 特别关注、备忘录、歌单、旧家电，照单全收","quote":"ta 还不知道自己有份档案，还是个收废品的。","desc":"相册按日期命名，备忘录记着 ta 不吃的三样东西，歌单换成 ta 分享过的那首。你的固执、委屈、水瓶、纸壳、旧家电，照单全收。还是个收废品的。","tags":["照单全收","收废品的","按日期命名"],"partner":"取消置顶很快","partnerReason":"你照单全收，ta 照单全退，还是个收废品的。"},{"dim":"自我保护","name":"嘴硬协会","subtitle":"· 群里说别瞎讲，挂了电话开始修仙","quote":"好久不见，我比以前更忧郁了，你敢直视神吗。","desc":"朋友一起哄，你回「别瞎讲」。挂了电话，你把 ta 朋友圈翻到 2023 年，翻到肚子里住进一位艾莎公主。今日无事，不看。又看了。","tags":["今日无事不看","艾莎公主","你敢直视神吗"],"partner":"已读就约","partnerReason":"你和刚才那个自己割席了，总得有人来把它接回去。"},{"dim":"持久力","name":"还在续费","subtitle":"· 话题已用完，转发仍在续费","quote":"命运 你拉粑粑，命运 你还不回我消息。","desc":"话题早用完了，你还在转发 ta 可能感兴趣的推送，发出去前删掉两个表情。命运 你假慈悲，命运 你假糍粑，命运 你已读不回。好。","tags":["命运你假糍粑","转发续费","删两个表情"],"partner":"视奸到凌晨三点","partnerReason":"命运 你假慈悲，命运 你假糍粑，命运 你俩都没睡。"},{"dim":"想象力","name":"视奸到凌晨三点","subtitle":"· 在线状态比 ta 本人还清楚，比老天爷还忙","quote":"那 0.3 秒里，你把婚礼请谁、第几剑霜寒都想好了。","desc":"ta 头像亮了一下你就清醒了。你连一剑霜寒十四洲、两剑霜寒腊八粥都想好了，最后 ta 发来：帮我砍一刀。粥凉了，你也睡了。","tags":["一剑霜寒腊八粥","砍一刀","粥凉了"],"partner":"还在续费","partnerReason":"你粥都凉了，得有人第二天还来问你砍不砍一刀。"},{"dim":"仪式感","name":"挑日子的人","subtitle":"· 等晴天、等生日、等十剑检验真理","quote":"你不是慢热，你是在等检验真理的唯一标准。","desc":"那段话存了 27 遍，等不下雨的傍晚、等 ta 心情好。等到了那天，ta 已经和别人一起了。十剑是检验真理的唯一标准，你连第一剑都没出。","tags":["十剑检验真理","第一剑没出","存了27遍"],"partner":"不打草稿","partnerReason":"你连第一剑都没出，需要有人替你把手机砸了。"},{"dim":"理性止损","name":"取消置顶很快","subtitle":"· 操作用时 2 秒，人生如绿豆饼","quote":"淡淡的就会顺顺的，你顺得比谁都快。","desc":"ta 第三次没回，你取消置顶、关特别关注，用时 2 秒。这一生如绿豆饼，上吊到一半又把脖子拿出来了，有点怕痒。你顺顺地走了。","tags":["一生如绿豆饼","怕痒","顺顺的"],"partner":"置顶选手","partnerReason":"你删得干净，得有人把你当旧家电收回来。"}];
+const TOTAL = QUIZ.length;
+const ACT_EMOJI = ['😉','🤩','🥰','😔','🫠'];
+const ACT_CN = ['上头','试探','升温','拉扯','清算'];
+const BURN_DIMS = ['自我保护','想象力','投入度'];
+let idx = 0;
+let answers = new Array(TOTAL).fill(null);
+let locked = false;
+
+const views = {cover:document.getElementById('cover'),quiz:document.getElementById('quiz'),result:document.getElementById('result')};
+function show(name){
+  Object.keys(views).forEach(k=>views[k].classList.toggle('active', k===name));
+  window.scrollTo(0,0);
+}
+const CS = getComputedStyle(document.documentElement);
+const C_LINE=CS.getPropertyValue('--line').trim();
+const C_DOT=CS.getPropertyValue('--dot').trim();
+const C_INK=CS.getPropertyValue('--ink').trim();
+const C_MUTED=CS.getPropertyValue('--muted').trim();
+const C_PAPER=CS.getPropertyValue('--paper').trim();
+
+const prog = document.getElementById('progress');
+[5,10,15,20].forEach(n=>{const t=document.createElement('i');t.className='tick';t.style.left=(n/TOTAL*100)+'%';prog.appendChild(t);});
+const actsBox = document.getElementById('acts');
+ACT_EMOJI.forEach(e=>{const el=document.createElement('i');el.textContent=e;actsBox.appendChild(el);});
+const fill = document.getElementById('fill');
+
+function render(){
+  locked=false;
+  const q=QUIZ[idx];
+  document.getElementById('pNum').textContent=String(idx+1).padStart(2,'0')+' / '+TOTAL;
+  fill.style.width=(idx/TOTAL*100)+'%';
+  const act=Math.floor(idx/5);
+  [...actsBox.children].forEach((el,i)=>el.classList.toggle('on',i===act));
+  document.getElementById('qText').textContent=q.q;
+  const box=document.getElementById('opts'); box.innerHTML='';
+  q.options.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='opt'; b.style.animationDelay=(0.06+i*0.055)+'s';
+    const k=document.createElement('span'); k.className='k'; k.textContent=o.key;
+    const t=document.createElement('span'); t.textContent=o.text;
+    b.appendChild(k); b.appendChild(t);
+    b.addEventListener('click',()=>pick(i,b));
+    box.appendChild(b);
+  });
+  if(answers[idx]!==null){const prev=box.children[answers[idx]];if(prev)prev.classList.add('picked');}
+  document.getElementById('backBtn').disabled=idx===0;
+  const body=document.getElementById('qBody');
+  body.style.animation='none'; void body.offsetWidth; body.style.animation='';
+}
+function pick(i,btn){
+  if(locked)return;
+  locked=true; answers[idx]=i;
+  [...document.getElementById('opts').children].forEach(b=>b.classList.remove('picked'));
+  btn.classList.add('picked');
+  fill.style.width=((idx+1)/TOTAL*100)+'%';
+  setTimeout(()=>{
+    if(idx+1<TOTAL){idx++;render();}
+    else{location.hash='r='+encodeAns();showResult();}
+  },280);
+}
+
+/* ---------- 计分 ---------- */
+function compute(){
+  const s={}; DIMS.forEach(d=>s[d]=0);
+  answers.forEach((a,i)=>{if(a!==null)QUIZ[i].options[a].dims.forEach(d=>s[d]++);});
+  const norm={}; DIMS.forEach(d=>norm[d]=Math.round(s[d]/COVERAGE[d]*100));
+  const vals=DIMS.map(d=>norm[d]);
+  const mn=Math.min(...vals),mx=Math.max(...vals),span=Math.max(mx-mn,8);
+  const disp={}; DIMS.forEach(d=>disp[d]=Math.round(42+(norm[d]-mn)/span*58));
+  let top=DIMS[0]; DIMS.forEach(d=>{if(norm[d]>norm[top])top=d;});
+  const ending=ENDINGS.find(e=>e.dim===top);
+  const burn=Math.round(norm['自我保护']*0.4+norm['想象力']*0.35+norm['投入度']*0.25);
+  const acts=[];
+  for(let a=1;a<=5;a++){
+    let hit=0;
+    QUIZ.forEach((q,i)=>{
+      if(q.act===a&&answers[i]!==null&&q.options[answers[i]].dims.some(d=>BURN_DIMS.includes(d)))hit++;
+    });
+    acts.push(Math.round(hit/5*100));
+  }
+  return {norm,disp,top,ending,burn,acts};
+}
+function radarSVG(disp,top){
+  const cx=170,cy=170,R=112;
+  const pt=(i,r)=>{const a=-Math.PI/2+i*Math.PI/4;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r];};
+  let g='';
+  [0.25,0.5,0.75,1].forEach(k=>{
+    const p=DIMS.map((_,i)=>pt(i,R*k).map(v=>v.toFixed(1)).join(',')).join(' ');
+    g+='<polygon points="'+p+'" fill="none" stroke="'+C_LINE+'" stroke-width="1"/>';
+  });
+  DIMS.forEach((d,i)=>{
+    const p=pt(i,R);
+    g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="'+C_LINE+'" stroke-width="1"/>';
+    const l=pt(i,R+24);
+    g+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+2).toFixed(1)+'" text-anchor="middle" font-size="11" fill="'+C_MUTED+'">'+d+'</text>';
+    g+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+17).toFixed(1)+'" text-anchor="middle" font-size="11" font-weight="700" fill="'+(d===top?C_INK:C_MUTED)+'">'+disp[d]+'</text>';
+  });
+  const data=DIMS.map((d,i)=>pt(i,R*Math.max(disp[d],3)/100).map(v=>v.toFixed(1)).join(',')).join(' ');
+  g+='<polygon points="'+data+'" fill="'+C_DOT+'" fill-opacity="0.3" stroke="'+C_DOT+'" stroke-width="2"/>';
+  DIMS.forEach((d,i)=>{
+    const p=pt(i,R*Math.max(disp[d],3)/100);
+    g+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(d===top?4.5:2.5)+'" fill="'+(d===top?C_INK:C_DOT)+'"/>';
+  });
+  return g;
+}
+function actSVG(acts){
+  const W=340,H=120,pad=30;
+  const xs=acts.map((_,i)=>pad+i*(W-2*pad)/4);
+  const ys=acts.map(v=>H-pad-(v/100)*(H-2*pad));
+  let g='<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="'+C_LINE+'" stroke-width="1"/>';
+  g+='<polyline points="'+xs.map((x,i)=>x.toFixed(1)+','+ys[i].toFixed(1)).join(' ')+'" fill="none" stroke="'+C_DOT+'" stroke-width="2.5" stroke-linejoin="round"/>';
+  xs.forEach((x,i)=>{
+    g+='<circle cx="'+x.toFixed(1)+'" cy="'+ys[i].toFixed(1)+'" r="3.5" fill="'+C_DOT+'"/>';
+    g+='<text x="'+x.toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="'+C_MUTED+'">'+ACT_CN[i]+'</text>';
+  });
+  return g;
+}
+function showResult(){
+  const r=compute();
+  document.getElementById('rName').textContent=r.ending.name;
+  document.getElementById('rSub').textContent=r.ending.subtitle;
+  document.getElementById('rQuote').textContent='「'+r.ending.quote+'」';
+  document.getElementById('rDesc').textContent=r.ending.desc;
+  document.getElementById('radar').innerHTML=radarSVG(r.disp,r.top);
+  document.getElementById('rDominant').innerHTML='你的主导维度：<b>'+r.top+' '+r.disp[r.top]+'</b>';
+  document.getElementById('rBurn').textContent=r.burn;
+  let maxI=0; r.acts.forEach((v,i)=>{if(v>r.acts[maxI])maxI=i;});
+  document.getElementById('rAct').textContent=ACT_CN[maxI];
+  document.getElementById('actChart').innerHTML=actSVG(r.acts);
+  const partner=ENDINGS.find(e=>e.name===r.ending.partner);
+  document.getElementById('rPartner').textContent=r.ending.partner;
+  document.getElementById('rPartnerSub').textContent=partner?partner.subtitle:'';
+  document.getElementById('rReason').textContent=r.ending.partnerReason;
+  document.getElementById('partnerCard').hidden=true;
+  document.getElementById('partnerToggle').querySelector('span').textContent='→';
+  show('result');
+}
+
+/* ---------- 结果链接 ---------- */
+function encodeAns(){return answers.map(a=>a===null?'x':String(a)).join('');}
+function decodeAns(str){answers=[...str].map(ch=>ch==='x'?null:Number(ch));}
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+/* ---------- 分享图 ---------- */
+function wrapText(c,text,x,y,maxW,lh){
+  let line='',yy=y;
+  for(const ch of text){
+    if(c.measureText(line+ch).width>maxW){c.fillText(line,x,yy);yy+=lh;line=ch;}
+    else line+=ch;
+  }
+  c.fillText(line,x,yy); return yy;
+}
+function shareImage(){
+  const r=compute();
+  const cv=document.createElement('canvas'); cv.width=750; cv.height=1120;
+  const c=cv.getContext('2d');
+  c.fillStyle=C_PAPER; c.fillRect(0,0,750,1120);
+  c.textAlign='left';
+  c.fillStyle=C_MUTED; c.font='600 22px "PingFang SC",sans-serif';
+  c.fillText('CRUSHOPS · 追 crush 时你是怎样的人',60,80);
+  c.fillStyle=C_INK; c.font='800 76px "PingFang SC",sans-serif';
+  c.fillText(r.ending.name,60,200);
+  c.fillStyle=C_MUTED; c.font='400 24px "PingFang SC",sans-serif';
+  c.fillText(r.ending.subtitle,60,244);
+  c.fillStyle=C_INK; c.font='700 30px "PingFang SC",sans-serif';
+  wrapText(c,'「'+r.ending.quote+'」',60,310,630,44);
+  c.fillStyle=C_INK; c.font='400 26px "PingFang SC",sans-serif';
+  wrapText(c,r.ending.desc,60,400,630,44);
+  // 简化雷达
+  const cx=375,cy=680,R=150;
+  const pt=(i,rr)=>{const a=-Math.PI/2+i*Math.PI/4;return[cx+Math.cos(a)*rr,cy+Math.sin(a)*rr];};
+  c.strokeStyle=C_LINE; c.lineWidth=1.5;
+  [0.33,0.66,1].forEach(k=>{c.beginPath();DIMS.forEach((_,i)=>{const p=pt(i,R*k);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);});c.closePath();c.stroke();});
+  DIMS.forEach((d,i)=>{const p=pt(i,R);c.beginPath();c.moveTo(cx,cy);c.lineTo(p[0],p[1]);c.stroke();
+    const l=pt(i,R+30);c.fillStyle=C_MUTED;c.font='400 19px "PingFang SC",sans-serif';c.textAlign='center';c.fillText(d,l[0],l[1]+6);});
+  c.beginPath();DIMS.forEach((d,i)=>{const p=pt(i,R*Math.max(r.disp[d],3)/100);i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]);});
+  c.closePath();c.fillStyle=C_DOT;c.globalAlpha=.3;c.fill();c.globalAlpha=1;c.strokeStyle=C_DOT;c.lineWidth=3;c.stroke();
+  c.textAlign='left';c.fillStyle=C_MUTED;c.font='400 22px "PingFang SC",sans-serif';
+  c.fillText('主导维度 '+r.top+' '+r.disp[r.top]+'　·　内耗指数 '+r.burn,60,920);
+  c.fillText('配到 crush：'+r.ending.partner,60,962);
+  c.fillStyle=C_INK;c.font='600 24px "PingFang SC",sans-serif';
+  c.fillText('什么也没发生，我又度过了幸福的一天',60,1040);
+  const a=document.createElement('a');a.download='CrushOps_'+r.ending.name+'.png';a.href=cv.toDataURL('image/png');a.click();
+  toast('分享图已保存');
+}
+
+/* ---------- 事件 ---------- */
+document.getElementById('backBtn').addEventListener('click',()=>{if(idx>0&&!locked){idx--;render();}});
+document.getElementById('startBtn').addEventListener('click',()=>{idx=0;answers.fill(null);location.hash='';show('quiz');render();});
+document.getElementById('restartBtn').addEventListener('click',()=>{idx=0;answers.fill(null);location.hash='';show('cover');});
+document.getElementById('partnerToggle').addEventListener('click',()=>{
+  const card=document.getElementById('partnerCard');
+  card.hidden=!card.hidden;
+  document.getElementById('partnerToggle').querySelector('span').textContent=card.hidden?'→':'－';
+});
+document.getElementById('shareBtn').addEventListener('click',shareImage);
+document.getElementById('linkBtn').addEventListener('click',()=>{
+  const url=location.href.split('#')[0]+'#r='+encodeAns();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>toast('结果链接已复制')).catch(()=>prompt('复制这个链接：',url));
+  }else prompt('复制这个链接：',url);
+});
+document.addEventListener('keydown',e=>{
+  if(!views.quiz.classList.contains('active'))return;
+  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'b':1,'c':2,'d':3,'A':0,'B':1,'C':2,'D':3};
+  if(e.key in map&&!locked){const b=document.getElementById('opts').children[map[e.key]];if(b)pick(map[e.key],b);}
+  if((e.key==='ArrowLeft'||e.key==='Backspace')&&idx>0&&!locked){idx--;render();}
+});
+// 打开分享链接时直接看结果
+(function(){const m=location.hash.match(/r=([0-3x]{25})/);if(m){decodeAns(m[1]);showResult();}})();
+</script>
+</body>
+</html>
